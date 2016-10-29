@@ -17,9 +17,24 @@ package com.ekc.c4q.callbackretrofit;
 public class CallbackExercise {
 
   public static void main(String[] args) {
-    NumberGenerator numberGenerator = new NumberGenerator();
+
+    // Solution 1
+    System.out.println("Solution 1 - with anonymous callback");
+    NumberGenerator numberGenerator = new NumberGenerator(new NumberGenerator.Callback() {
+      @Override public void onSuccess() {
+        System.out.println("Success!");
+      }
+
+      @Override public void onFailure() {
+        System.out.println("Failure");
+      }
+    });
 
     // Do not modify below, feel free to add/edit above this line
     numberGenerator.printRandomNumbers();
+
+    System.out.println("Solution 2 - with explicit callback");
+    NumberGenerator numberGenerator1 = new NumberGenerator(new MyCallback());
+    numberGenerator1.printRandomNumbers();
   }
 }
