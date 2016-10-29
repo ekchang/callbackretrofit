@@ -1,8 +1,12 @@
 package com.ekc.c4q.callbackretrofit.network;
 
+import com.ekc.c4q.callbackretrofit.model.Contributor;
+import com.ekc.c4q.callbackretrofit.model.Repository;
+import java.util.List;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
 // Client for interacting with the GitHubApi
 public class GitHubClient {
@@ -21,15 +25,18 @@ public class GitHubClient {
   }
 
   private GitHubClient() {
-    Retrofit retrofit = new Retrofit.Builder().baseUrl(API_URL).build();
+    Retrofit retrofit = new Retrofit.Builder()
+        .baseUrl(API_URL)
+        .addConverterFactory(GsonConverterFactory.create())
+        .build();
     api = retrofit.create(GitHubApi.class);
   }
 
-  public Call<ResponseBody> getContributors(String owner, String repository) {
+  public Call<List<Contributor>> getContributors(String owner, String repository) {
     return api.getContributors(owner, repository);
   }
 
-  public Call<ResponseBody> getRepositories(String user) {
+  public Call<List<Repository>> getRepositories(String user) {
     return api.getRepositories(user);
   }
 }

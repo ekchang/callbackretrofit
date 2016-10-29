@@ -15,10 +15,7 @@ import com.ekc.c4q.callbackretrofit.model.Repository;
 import com.ekc.c4q.callbackretrofit.network.GitHubClient;
 import com.google.gson.Gson;
 import com.squareup.picasso.Picasso;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -70,22 +67,17 @@ public class ProfileActivity extends AppCompatActivity {
     recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
     gitHubClient = GitHubClient.getInstance();
-    Call<ResponseBody> call = gitHubClient.getRepositories(login);
-    call.enqueue(new Callback<ResponseBody>() {
+    Call<List<Repository>> call = gitHubClient.getRepositories(login);
+    call.enqueue(new Callback<List<Repository>>() {
       @Override
-      public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-        try {
-          List<Repository> repositories =
-              Arrays.asList(gson.fromJson(response.body().string(), Repository[].class));
-          emptyView.setVisibility(repositories.isEmpty() ? VISIBLE : GONE);
-          adapter.setRepositories(repositories);
-        } catch (IOException e) {
-          e.printStackTrace();
-        }
+      public void onResponse(Call<List<Repository>> call, Response<List<Repository>> response) {
+        List<Repository> repositories = response.body();
+        emptyView.setVisibility(repositories.isEmpty() ? VISIBLE : GONE);
+        adapter.setRepositories(repositories);
       }
 
       @Override
-      public void onFailure(Call<ResponseBody> call, Throwable t) {
+      public void onFailure(Call<List<Repository>> call, Throwable t) {
         String errorMessage =
             ProfileActivity.this.getString(R.string.error_loading_repositories, t.getMessage());
         Toast.makeText(ProfileActivity.this, errorMessage, Toast.LENGTH_SHORT).show();

@@ -16,10 +16,7 @@ import android.widget.Toast;
 import com.ekc.c4q.callbackretrofit.model.Contributor;
 import com.ekc.c4q.callbackretrofit.network.GitHubClient;
 import com.google.gson.Gson;
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.List;
-import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.Callback;
 import retrofit2.Response;
@@ -73,24 +70,19 @@ public class MainActivity extends AppCompatActivity {
 
   public void loadRepositoryContributors(View view) {
     String owner = ownerView.getText().toString();
-    String repository = repositoryView.getText().toString();
+    final String repository = repositoryView.getText().toString();
     if (!owner.isEmpty() && !repository.isEmpty()) {
-      Call<ResponseBody> call = gitHubClient.getContributors(owner, repository);
-      call.enqueue(new Callback<ResponseBody>() {
+      Call<List<Contributor>> call = gitHubClient.getContributors(owner, repository);
+      call.enqueue(new Callback<List<Contributor>>() {
         @Override
-        public void onResponse(Call<ResponseBody> call, Response<ResponseBody> response) {
-          try {
-            List<Contributor> contributors =
-                Arrays.asList(gson.fromJson(response.body().string(), Contributor[].class));
-            emptyView.setVisibility(contributors.isEmpty() ? VISIBLE : GONE);
-            adapter.setContributors(contributors);
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
+        public void onResponse(Call<List<Contributor>> call, Response<List<Contributor>> response) {
+          List<Contributor> contributors = response.body();
+          emptyView.setVisibility(contributors.isEmpty() ? VISIBLE : GONE);
+          adapter.setContributors(contributors);
         }
 
         @Override
-        public void onFailure(Call<ResponseBody> call, Throwable t) {
+        public void onFailure(Call<List<Contributor>> call, Throwable t) {
           String errorMessage =
               MainActivity.this.getString(R.string.error_loading_contributors, t.getMessage());
           Toast.makeText(MainActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
