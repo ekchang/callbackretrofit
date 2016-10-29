@@ -3,6 +3,7 @@ package com.ekc.c4q.callbackretrofit;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.NavUtils;
+import android.support.v4.widget.ContentLoadingProgressBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -35,6 +36,7 @@ public class ProfileActivity extends AppCompatActivity {
   private GitHubClient gitHubClient;
   private RepositoryAdapter adapter;
   private ViewGroup emptyView;
+  private ContentLoadingProgressBar progressView;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -52,6 +54,7 @@ public class ProfileActivity extends AppCompatActivity {
     loginView = (TextView) findViewById(R.id.login);
     emptyView = (ViewGroup) findViewById(android.R.id.empty);
     recyclerView = (RecyclerView) findViewById(android.R.id.list);
+    progressView = (ContentLoadingProgressBar) findViewById(R.id.progress_bar);
 
     Picasso.with(this)
         .load(avatarUrl)
@@ -68,16 +71,27 @@ public class ProfileActivity extends AppCompatActivity {
 
     gitHubClient = GitHubClient.getInstance();
     Call<List<Repository>> call = gitHubClient.getRepositories(login);
+    progressView.show();
+
     call.enqueue(new Callback<List<Repository>>() {
       @Override
       public void onResponse(Call<List<Repository>> call, Response<List<Repository>> response) {
         List<Repository> repositories = response.body();
-        emptyView.setVisibility(repositories.isEmpty() ? VISIBLE : GONE);
-        adapter.setRepositories(repositories);
+        if (repositories == null || repositories.isEmpty()) {
+          emptyView.setVisibility(VISIBLE);
+          progressView.hide();
+          recyclerView.setVisibility(GONE);
+        } else {
+          emptyView.setVisibility(GONE);
+          progressView.hide();
+          recyclerView.setVisibility(VISIBLE);
+          adapter.setRepositories(repositories);
+        }
       }
 
       @Override
       public void onFailure(Call<List<Repository>> call, Throwable t) {
+        progressView.hide();
         String errorMessage =
             ProfileActivity.this.getString(R.string.error_loading_repositories, t.getMessage());
         Toast.makeText(ProfileActivity.this, errorMessage, Toast.LENGTH_SHORT).show();
