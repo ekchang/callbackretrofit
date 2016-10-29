@@ -4,7 +4,7 @@ package com.ekc.c4q.callbackretrofit;
  * 10/29/16 Erick Chang
  * Callback Exercise
  *
- * 1) NumberGenerator is a class that prints
+ * 1) NumberGenerator is a class that prints 100 numbers randomly, between 0-100.
  * 2) Attach a callback that calls an onSuccess() method whenever the number is greater than or
  * equal to 75.
  * 3) Have the callback call onFailure() when the number is smaller than 25.
